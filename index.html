@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="ad.size" content="width=320,height=480">
+<meta name="viewport" content="width=320,height=480,initial-scale=1">
+<title>Calculadora de la Olla · Arroz Diana Vitamor</title>
+<script type="text/javascript">
+var clickTag = "https://www.google.com";
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:320px;height:480px;overflow:hidden;background:#FAF5EA;color:#1A2230;
+font-family:Arial,Helvetica,sans-serif;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.ad{position:relative;width:320px;height:480px;overflow:hidden;border:1px solid #E6DCC8;background:#FAF5EA}
+.brand{font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#C4421F}
+.cta{display:block;width:100%;border:0;border-radius:999px;background:#E4572E;color:#14161C;font-weight:800;
+font-family:inherit;text-align:center;cursor:pointer;transition:transform .15s}
+.cta:active{transform:scale(.97)}
+.disc{color:#5B6472;line-height:1.3}
+button{font-family:inherit}
+
+.calc{display:flex;flex-direction:column;justify-content:space-between;padding:19.2px;gap:8.5px}
+.brand{font-size:11.7px}
+h1{font-size:23.5px;line-height:1.12;margin-top:6.4px}
+.num{display:flex;align-items:baseline;gap:8.5px}
+.num span{font-size:74.7px;font-weight:800;color:#E4572E;line-height:1}
+.num small{font-size:17.1px;font-weight:700}
+.dots{display:flex;flex-wrap:wrap;gap:5.3px;min-height:14.9px;margin:6.4px 0}
+.dots i{width:12.8px;height:12.8px;border-radius:50%;background:#1F7A6E;
+animation:pop .25s ease-out}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.ctrl{display:flex;align-items:center;gap:8.5px}
+.ctrl button{width:36.3px;height:36.3px;flex:none;border-radius:50%;border:2px solid #1A2230;background:#FAF5EA;
+font-size:21.3px;font-weight:800;color:#1A2230;cursor:pointer;line-height:1}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:12.8px;border-radius:6.4px;outline:none;cursor:pointer;
+background:#E6DCC8}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:29.9px;height:29.9px;border-radius:50%;background:#1A2230;
+border:3px solid #FAF5EA;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+input[type=range]::-moz-range-thumb{width:25.6px;height:25.6px;border-radius:50%;background:#1A2230;border:3px solid #FAF5EA}
+.res{background:#1A2230;color:#FAF5EA;border-radius:14.9px;padding:14.9px 17.1px;display:flex;flex-direction:column;
+gap:6.4px;font-size:17.1px}
+.res b{color:#F2994A}
+.cta{font-size:17.1px;padding:13.9px}
+.disc{font-size:9.6px;text-align:center}
+</style>
+</head>
+<body>
+<div class="ad calc">
+  <div>
+    <div class="brand">Arroz Diana Vitamor</div>
+    <h1>¿Cuántos se sientan hoy a la mesa?</h1>
+  </div>
+  <div>
+    <div class="num"><span id="n">2</span><small id="nl">personas</small></div>
+    <div class="dots" id="dots"></div>
+    <div class="ctrl">
+      <button id="minus" aria-label="Menos personas">−</button>
+      <input id="r" type="range" min="1" max="12" value="2" aria-label="Personas en la mesa">
+      <button id="plus" aria-label="Más personas">+</button>
+    </div>
+  </div>
+  <div class="res" aria-live="polite">
+    <div>Necesitas <b id="t"></b> de arroz</div>
+    <div>Rinde <b id="p"></b></div>
+    <div id="costRow">Costo por plato: <b id="c"></b></div>
+  </div>
+  <button class="cta" id="cta">¿Dónde lo compro?</button>
+  <div class="disc" id="disc"></div>
+</div>
+<script>
+/* ===== CONFIGURACIÓN (validar con la marca) ===== */
+var C={
+  tazasPorPersona:0.5,   // taza de arroz crudo por persona
+  gramosPorTaza:190,     // gramos aprox. de arroz crudo por taza
+  gramosPaquete:1000,    // presentación de referencia (g)
+  precioPaquete:0,       // precio sugerido en COP; 0 = no mostrar costo por plato
+  trackUrl:""            // pixel de medición, p. ej. "https://.../px?e={evento}&cb={cb}"
+};
+
+function track(ev){
+  if(!C.trackUrl) return;
+  var i=new Image();
+  i.src=C.trackUrl.replace('{evento}',encodeURIComponent(ev)).replace('{cb}',Date.now());
+}
+function exit(url,ev){
+  track(ev||'clic');
+  window.open(url||window.clickTag,'_blank');
+}
+
+var $=function(id){return document.getElementById(id)};
+var r=$('r'),touched=false,demo=null;
+function frac(x){
+  var w=Math.floor(x),q=Math.round((x-w)*4)/4;
+  if(q===1){w++;q=0}
+  var f={0:'',0.25:'¼',0.5:'½',0.75:'¾'}[q];
+  return (w?w:'')+(w&&f?' ':'')+f+(x>1?' tazas':' taza');
+}
+function money(v){return '$'+Math.round(v).toLocaleString('es-CO')}
+function update(n){
+  n=Math.max(1,Math.min(12,n)); r.value=n;
+  $('n').textContent=n; $('nl').textContent=n===1?'persona':'personas';
+  var d=''; for(var i=0;i<n;i++) d+='<i></i>'; $('dots').innerHTML=d;
+  $('t').textContent=frac(n*C.tazasPorPersona);
+  $('p').textContent=n+(n===1?' plato':' platos');
+  if(C.precioPaquete>0){
+    var platosPaquete=(C.gramosPaquete/C.gramosPorTaza)/C.tazasPorPersona;
+    $('c').textContent=money(C.precioPaquete/platosPaquete);
+    $('costRow').style.display='';
+  } else $('costRow').style.display='none';
+  var pc=(n-1)/11*100;
+  r.style.background='linear-gradient(90deg,#E4572E '+pc+'%,#E6DCC8 '+pc+'%)';
+}
+function user(n){
+  if(demo){clearInterval(demo);demo=null}
+  if(!touched){touched=true;track('interaccion')}
+  update(n);
+}
+r.addEventListener('input',function(){user(+r.value)});
+$('minus').addEventListener('click',function(){user(+r.value-1)});
+$('plus').addEventListener('click',function(){user(+r.value+1)});
+$('cta').addEventListener('click',function(){exit(window.clickTag,'clic_donde_comprar')});
+$('disc').textContent='Cálculo de referencia: '+frac(C.tazasPorPersona).replace(' taza',' taza')+' de arroz crudo por persona.';
+update(2);
+/* demostración breve para llamar la atención; se detiene al primer toque */
+setTimeout(function(){
+  var v=2; demo=setInterval(function(){ if(v>=6){clearInterval(demo);demo=null;return} v++; update(v); },380);
+},700);
+</script>
+</body>
+</html>
