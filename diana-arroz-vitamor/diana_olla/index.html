@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="ad.size" content="width=320,height=480">
+<meta name="viewport" content="width=320,height=480,initial-scale=1">
+<title>El scroll destapa la olla · Arroz Diana Vitamor</title>
+<script type="text/javascript">
+var clickTag = "https://www.google.com";
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:320px;height:480px;overflow:hidden;background:#FAF5EA;color:#1A2230;
+font-family:Arial,Helvetica,sans-serif;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.ad{position:relative;width:320px;height:480px;overflow:hidden;border:1px solid #E6DCC8;background:#FAF5EA}
+.brand{font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#C4421F}
+.cta{display:block;width:100%;border:0;border-radius:999px;background:#E4572E;color:#14161C;font-weight:800;
+font-family:inherit;text-align:center;cursor:pointer;transition:transform .15s}
+.cta:active{transform:scale(.97)}
+.disc{color:#5B6472;line-height:1.3}
+button{font-family:inherit}
+
+.wrap{display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:19.2px;height:100%;text-align:center}
+.pot{width:245.3px;height:auto;cursor:pointer}
+.side{display:flex;flex-direction:column;gap:10.7px;width:100%;align-items:center}
+h1{font-size:27.7px;line-height:1.1}
+.pack{height:96.0px;width:auto;object-fit:contain}
+
+.brand{font-size:11.7px}
+h1{opacity:0;transform:translateY(8.5px);transition:opacity .5s,transform .5s}
+.show h1{opacity:1;transform:none}
+.cta{font-size:14.9px;padding:10.7px}
+.hintt{font-size:10.7px;color:#5B6472}
+</style>
+</head>
+<body>
+<div class="ad" id="ad">
+  <div class="wrap">
+    <svg viewBox="0 0 200 170" class="pot" id="pot" role="img" aria-label="Olla que se destapa">
+  <g id="steam" opacity="0" fill="none" stroke="#C9C2B3" stroke-width="4" stroke-linecap="round">
+    <path d="M70 60 q-8 -12 0 -24 q8 -12 0 -24"/>
+    <path d="M100 56 q-8 -12 0 -24 q8 -12 0 -24"/>
+    <path d="M130 60 q-8 -12 0 -24 q8 -12 0 -24"/>
+  </g>
+  <rect x="4" y="92" width="22" height="12" rx="6" fill="#C4421F"/>
+  <rect x="174" y="92" width="22" height="12" rx="6" fill="#C4421F"/>
+  <path d="M20 80 h160 v48 q0 34 -34 34 h-92 q-34 0 -34 -34 z" fill="#E4572E"/>
+  <ellipse cx="100" cy="80" rx="80" ry="17" fill="#C4421F"/>
+  <ellipse cx="100" cy="82" rx="71" ry="12" fill="#FFFDF7"/>
+  <g fill="#EFE6D2">
+    <ellipse cx="78" cy="81" rx="4" ry="1.6"/><ellipse cx="96" cy="85" rx="4" ry="1.6"/>
+    <ellipse cx="116" cy="80" rx="4" ry="1.6"/><ellipse cx="132" cy="84" rx="4" ry="1.6"/>
+    <ellipse cx="62" cy="85" rx="4" ry="1.6"/><ellipse cx="108" cy="88" rx="4" ry="1.6"/>
+  </g>
+  <g id="lid">
+    <path d="M18 78 q82 -50 164 0 z" fill="#1A2230"/>
+    <ellipse cx="100" cy="78" rx="84" ry="10" fill="#2A3547"/>
+    <rect x="89" y="42" width="22" height="10" rx="4" fill="#2A3547"/>
+  </g>
+</svg>
+    <div class="side">
+      <div class="brand">Arroz Diana Vitamor</div>
+      <h1 id="attr"></h1>
+      <img class="pack" src="empaque.png" alt="Arroz Diana Vitamor">
+      <button class="cta" id="cta">Conócelo</button>
+      <div class="hintt">Toca la olla para destaparla otra vez</div>
+    </div>
+  </div>
+</div>
+<script>
+/* ===== CONFIGURACIÓN (validar atributos con la marca) ===== */
+var C={
+  atributos:['Rinde más en tu olla','Grano suelto que no se pega','Con vitaminas para tu familia'],
+  trackUrl:""
+};
+
+function track(ev){
+  if(!C.trackUrl) return;
+  var i=new Image();
+  i.src=C.trackUrl.replace('{evento}',encodeURIComponent(ev)).replace('{cb}',Date.now());
+}
+function exit(url,ev){
+  track(ev||'clic');
+  window.open(url||window.clickTag,'_blank');
+}
+
+var $=function(id){return document.getElementById(id)};
+$('attr').textContent=C.atributos[Math.floor(Math.random()*C.atributos.length)];
+var target=0,cur=0,full=false,seen=false,auto=null;
+function draw(p){
+  $('lid').setAttribute('transform','translate('+(34*p)+','+(-46*p)+') rotate('+(-16*p)+' 100 70)');
+  $('steam').setAttribute('opacity',Math.max(0,(p-.3)/.7));
+  $('steam').setAttribute('transform','translate(0,'+(10-10*p)+')');
+  if(p>.6 && $('ad').className.indexOf('show')<0) $('ad').className+=' show';
+  if(p>=.95 && !full){full=true;track('olla_destapada')}
+}
+function loop(){ cur+= (target-cur)*.12; if(Math.abs(target-cur)<.002) cur=target; draw(cur); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+function autoplay(){ target=0; cur=0; setTimeout(function(){target=1},200); }
+if('IntersectionObserver' in window){
+  var th=[];for(var k=0;k<=20;k++)th.push(k/20);
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ seen=true; target=Math.min(1,e.intersectionRatio/0.9); });
+  },{threshold:th}).observe($('ad'));
+  /* si el entorno no reporta visibilidad, se anima sola */
+  auto=setTimeout(function(){ if(!seen||target===0) autoplay(); },1500);
+} else autoplay();
+$('pot').addEventListener('click',function(){ track('replay'); autoplay(); });
+$('cta').addEventListener('click',function(){ exit(window.clickTag,'clic_conocelo'); });
+</script>
+</body>
+</html>
